@@ -1,11 +1,15 @@
 <template>
   <div id="app">
-    <NavBar/>
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
-    <router-view/>
+    <el-row>
+
+      <el-col :span="6">
+        <h2>Quick Deploy</h2>
+        <NavBar/>
+      </el-col>
+      <el-col :span="18">
+        <router-view/>
+      </el-col>
+    </el-row>
   </div>
 </template>
 
