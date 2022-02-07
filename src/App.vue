@@ -1,12 +1,11 @@
 <template>
   <div id="app">
     <el-row>
-
       <el-col :span="6">
         <h2>Quick Deploy</h2>
         <NavBar/>
       </el-col>
-      <el-col :span="18">
+      <el-col :span="18" id="main">
         <router-view/>
       </el-col>
     </el-row>
@@ -32,6 +31,7 @@
   text-align: center;
   color: #2c3e50;
 }
+
 
 #nav {
   padding: 30px;
