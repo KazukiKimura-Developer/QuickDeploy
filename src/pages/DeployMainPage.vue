@@ -22,9 +22,13 @@
 
 import DevelopCardButton from "../components/DevelopCardButton";
 
+
 export default {
   name: "DeployMainPage",
   components: {DevelopCardButton},
+  mounted() {
+
+  },
   data(){
     return{
 
@@ -38,6 +42,7 @@ export default {
             {name: 'Anything', icon: 'devicon-amazonwebservices-original'},
       ],
 
+
       routeToSettingName: ['frontSetting', 'serverSetting', 'databaseSetting', 'anythingSetting']
     }
   },
@@ -45,6 +50,39 @@ export default {
     cardClick: function(key){
 
       console.log(key)
+      const {ipcRenderer} = require('electron');
+      const yaml =  require('js-yaml')
+
+      const yamlBooks = yaml.dump(this.cardItems1)
+
+      ipcRenderer.invoke('file-save', yamlBooks)
+          .then((data) => {
+            // キャンセルで閉じた
+            if( data.status === undefined ){
+              return(false);
+            }
+            // 保存できなかった
+            if( ! data.status ){
+              alert(`ファイルが開けませんでした\n${data.message}`);
+              return(false);
+            }
+
+            // 保存できた
+            this.$message('This is a message.');
+          })
+          .catch((err) => {
+            alert(err);
+          });
+
+
+
+
+      // fs.writeFile('.sample.yaml', yamlBooks, 'utf8', (err => {
+      //   if (err){
+      //     console.log(err.message)
+      //     process.exit(0)
+      //   }
+      // }))
     }
 
   }

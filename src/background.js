@@ -1,9 +1,10 @@
 'use strict'
 
-import { app, protocol, BrowserWindow } from 'electron'
+import { app, protocol, BrowserWindow, ipcMain, dialog } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
+const fs = require('fs')
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
@@ -65,6 +66,38 @@ app.on('ready', async () => {
   }
   createWindow()
 })
+
+
+ipcMain.handle('file-save', async (event, data) => {
+  // 場所とファイル名を選択
+  // const path = dialog.showSaveDialogSync(mainWin, {
+  //   buttonLabel: '保存',  // ボタンのラベル
+  //   filters: [
+  //     { name: 'Text', extensions: ['txt', 'text'] },
+  //   ],
+  //   properties:[
+  //     'createDirectory',  // ディレクトリの作成を許可 (macOS)
+  //   ]
+  // });
+  //
+  // // キャンセルで閉じた場合
+  // if( path === undefined ){
+  //   return({status: undefined});
+  // }
+
+  // ファイルの内容を返却
+  try {
+    fs.writeFileSync('sample.yaml', data);
+
+    return({
+      status: true,
+      path: 'sample.yaml'
+    });
+  }
+  catch(error) {
+    return({status:false, message:error.message});
+  }
+});
 
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {
