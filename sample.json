@@ -1,0 +1,205 @@
+{
+    "Resources": {
+        "quickVPC": {
+            "Type": "AWS::EC2::VPC",
+            "Properties": {
+                "CidrBlock": "10.0.0.0/16",
+                "EnableDnsSupport": true,
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "quickVPC"
+                    }
+                ]
+            }
+        },
+        "publicSubnet01": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "AvailabilityZone": "ap-northeast-1a",
+                "VpcId": {
+                    "Ref": "quickVPC"
+                },
+                "CidrBlock": "10.0.0.0/24",
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "publicsubnet01"
+                    }
+                ]
+            }
+        },
+        "publicSubnet02": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "AvailabilityZone": "ap-northeast-1c",
+                "VpcId": {
+                    "Ref": "quickVPC"
+                },
+                "CidrBlock": "10.0.2.0/24",
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "publicsubnet02"
+                    }
+                ]
+            }
+        },
+        "privateSubnet01": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "AvailabilityZone": "ap-northeast-1a",
+                "VpcId": {
+                    "Ref": "quickVPC"
+                },
+                "CidrBlock": "10.0.1.0/24",
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "privateSubnet01"
+                    }
+                ]
+            }
+        },
+        "privateSubnet02": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "AvailabilityZone": "ap-northeast-1c",
+                "VpcId": {
+                    "Ref": "quickVPC"
+                },
+                "CidrBlock": "10.0.3.0/24",
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "privateSubnet02"
+                    }
+                ]
+            }
+        },
+        "igw": {
+            "Type": "AWS::EC2::InternetGateway",
+            "Properties": {
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "igw"
+                    }
+                ]
+            }
+        },
+        "AttachGateway": {
+            "Type": "AWS::EC2::VPCGatewayAttachment",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "quickVPC"
+                },
+                "InternetGatewayId": {
+                    "Ref": "igw"
+                }
+            }
+        },
+        "Routepublicsubnet": {
+            "Type": "AWS::EC2::RouteTable",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "quickVPC"
+                },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "rt-publicsubnet"
+                    }
+                ]
+            }
+        },
+        "routePublic": {
+            "Type": "AWS::EC2::Route",
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "Routepublicsubnet"
+                },
+                "DestinationCidrBlock": "0.0.0.0/0",
+                "GatewayId": {
+                    "Ref": "igw"
+                }
+            }
+        },
+        "routeTableAssocPublic01": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "SubnetId": {
+                    "Ref": "publicSubnet01"
+                },
+                "RouteTableId": {
+                    "Ref": "Routepublicsubnet"
+                }
+            }
+        },
+        "routeTableAssocPublic02": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "SubnetId": {
+                    "Ref": "publicSubnet02"
+                },
+                "RouteTableId": {
+                    "Ref": "Routepublicsubnet"
+                }
+            }
+        },
+        "SecGroupPublic": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "GroupName": "GroupName-SG",
+                "GroupDescription": "SecGroupPublic",
+                "VpcId": {
+                    "Ref": "quickVPC"
+                },
+                "SecurityGroupIngress": [
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": 80,
+                        "ToPort": 80,
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": 22,
+                        "ToPort": 22,
+                        "CidrIp": "0.0.0.0/0"
+                    }
+                ]
+            }
+        },
+        "publicEC2Instance": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "KeyName": "my-key-pair",
+                "DisableApiTermination": false,
+                "ImageId": "ami-09ebacdc178ae23b7",
+                "InstanceType": "t2.micro",
+                "Monitoring": false,
+                "NetworkInterfaces": [
+                    {
+                        "AssociatePublicIpAddress": "true",
+                        "DeviceIndex": "0",
+                        "SubnetId": {
+                            "Ref": "publicSubnet01"
+                        },
+                        "GroupSet": [
+                            {
+                                "Ref": "SecGroupPublic"
+                            }
+                        ]
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "publicEC2Instance"
+                    }
+                ]
+            }
+        }
+    }
+}

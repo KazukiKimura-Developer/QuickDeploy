@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, protocol, BrowserWindow, ipcMain, dialog } from 'electron'
+import { app, protocol, BrowserWindow, ipcMain } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
@@ -87,7 +87,7 @@ ipcMain.handle('file-save', async (event, data) => {
 
   // ファイルの内容を返却
   try {
-    fs.writeFileSync('sample.yaml', data);
+    fs.writeFileSync('sample.json', data);
 
     return({
       status: true,
