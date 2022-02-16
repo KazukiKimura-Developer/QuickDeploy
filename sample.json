@@ -5,6 +5,7 @@
             "Properties": {
                 "CidrBlock": "10.0.0.0/16",
                 "EnableDnsSupport": true,
+                "EnableDnsHostnames": true,
                 "Tags": [
                     {
                         "Key": "Name",
@@ -41,38 +42,6 @@
                     {
                         "Key": "Name",
                         "Value": "publicsubnet02"
-                    }
-                ]
-            }
-        },
-        "privateSubnet01": {
-            "Type": "AWS::EC2::Subnet",
-            "Properties": {
-                "AvailabilityZone": "ap-northeast-1a",
-                "VpcId": {
-                    "Ref": "quickVPC"
-                },
-                "CidrBlock": "10.0.1.0/24",
-                "Tags": [
-                    {
-                        "Key": "Name",
-                        "Value": "privateSubnet01"
-                    }
-                ]
-            }
-        },
-        "privateSubnet02": {
-            "Type": "AWS::EC2::Subnet",
-            "Properties": {
-                "AvailabilityZone": "ap-northeast-1c",
-                "VpcId": {
-                    "Ref": "quickVPC"
-                },
-                "CidrBlock": "10.0.3.0/24",
-                "Tags": [
-                    {
-                        "Key": "Name",
-                        "Value": "privateSubnet02"
                     }
                 ]
             }
@@ -158,6 +127,12 @@
                 "SecurityGroupIngress": [
                     {
                         "IpProtocol": "tcp",
+                        "FromPort": 3306,
+                        "ToPort": 3306,
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
                         "FromPort": 80,
                         "ToPort": 80,
                         "CidrIp": "0.0.0.0/0"
@@ -171,32 +146,55 @@
                 ]
             }
         },
-        "publicEC2Instance": {
-            "Type": "AWS::EC2::Instance",
+        "DBParameterGroup": {
+            "Type": "AWS::RDS::DBParameterGroup",
             "Properties": {
-                "KeyName": "my-key-pair",
-                "DisableApiTermination": false,
-                "ImageId": "ami-09ebacdc178ae23b7",
-                "InstanceType": "t2.micro",
-                "Monitoring": false,
-                "NetworkInterfaces": [
+                "Description": "custom paramter group",
+                "Family": "MySQL5.6",
+                "Parameters": {
+                    "character_set_database": "utf8mb4",
+                    "character_set_client": "utf8mb4",
+                    "character_set_connection": "utf8mb4",
+                    "character_set_results": "utf8mb4",
+                    "character_set_server": "utf8mb4"
+                }
+            }
+        },
+        "DBSubnetGroup": {
+            "Type": "AWS::RDS::DBSubnetGroup",
+            "Properties": {
+                "DBSubnetGroupDescription": "custom subnet group",
+                "SubnetIds": [
                     {
-                        "AssociatePublicIpAddress": "true",
-                        "DeviceIndex": "0",
-                        "SubnetId": {
-                            "Ref": "publicSubnet01"
-                        },
-                        "GroupSet": [
-                            {
-                                "Ref": "SecGroupPublic"
-                            }
-                        ]
+                        "Ref": "publicSubnet01"
+                    },
+                    {
+                        "Ref": "publicSubnet02"
                     }
-                ],
-                "Tags": [
+                ]
+            }
+        },
+        "DBInstance": {
+            "Type": "AWS::RDS::DBInstance",
+            "DeletionPolicy": "Snapshot",
+            "Properties": {
+                "AllocatedStorage": "5",
+                "DBInstanceClass": "db.t2.micro",
+                "DBParameterGroupName": {
+                    "Ref": "DBParameterGroup"
+                },
+                "DBSubnetGroupName": {
+                    "Ref": "DBSubnetGroup"
+                },
+                "PubliclyAccessible": true,
+                "Engine": "MySQL",
+                "EngineVersion": "5.6.46",
+                "MasterUsername": "qiuckdeploy",
+                "MasterUserPassword": "qiuckdeploy",
+                "StorageType": "gp2",
+                "VPCSecurityGroups": [
                     {
-                        "Key": "Name",
-                        "Value": "publicEC2Instance"
+                        "Ref": "SecGroupPublic"
                     }
                 ]
             }

@@ -21,7 +21,7 @@
 <script>
 
 import DevelopCardButton from "../components/DevelopCardButton";
-import {Rds} from "../cloudformation/Rds"
+import {CloudFormation} from "../cloudformation/CloudFormation"
 
 
 export default {
@@ -53,21 +53,17 @@ export default {
 
 
     cardClick: function(key){
-      // const util = require('util');
-      // const childProcess = require('child_process');
-      // const exec = util.promisify(childProcess.exec);
-
-
 
       console.log(key)
-      console.log(Rds.getRdsYamlFormat)
+      console.log(CloudFormation.getRdsYamlFormat)
       const {ipcRenderer} = require('electron');
-      // const yaml =  require('js-yaml')
+
+      ipcRenderer.invoke('aws-cli-command', "ls", null, '    ').then((data) => {
+        console.log(data.stdout)
+      });
 
 
-      // const yamlBooks = yaml.dump(Rds.getRdsYamlFormat)
-
-      ipcRenderer.invoke('file-save', JSON.stringify(Rds.geTestYamlFormat, null, '    '))
+      ipcRenderer.invoke('file-save', JSON.stringify(CloudFormation.getRdsYamlFormat, null, '    '))
           .then((data) => {
             // キャンセルで閉じた
             if( data.status === undefined ){

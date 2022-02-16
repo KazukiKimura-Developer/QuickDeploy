@@ -1,5 +1,7 @@
 // eslint-disable-next-line no-unused-vars
-export class Rds{
+import tree from "element-ui/packages/table/src/store/tree";
+
+export class CloudFormation {
 
     static vpc = {
         quickVPC: {
@@ -7,6 +9,7 @@ export class Rds{
             Properties: {
                 CidrBlock: "10.0.0.0/16",
                 EnableDnsSupport: true,
+                EnableDnsHostnames: true,
                 Tags: [
                     {
                         Key: "Name",
@@ -23,7 +26,7 @@ export class Rds{
             Properties: {
                 AvailabilityZone: "ap-northeast-1a",
                 VpcId:{
-                    "Ref": "quickVPC"
+                    Ref: "quickVPC"
                 },
                 CidrBlock: "10.0.0.0/24",
                 Tags: [
@@ -42,7 +45,7 @@ export class Rds{
             Properties: {
                 AvailabilityZone: "ap-northeast-1c",
                 VpcId:{
-                    "Ref": "quickVPC"
+                    Ref: "quickVPC"
                 },
                 CidrBlock: "10.0.2.0/24",
                 Tags: [
@@ -61,7 +64,7 @@ export class Rds{
             Properties: {
                 AvailabilityZone: "ap-northeast-1a",
                 VpcId:{
-                    "Ref": "quickVPC"
+                    Ref: "quickVPC"
                 },
                 CidrBlock: "10.0.1.0/24",
                 Tags: [
@@ -80,7 +83,7 @@ export class Rds{
             Properties: {
                 AvailabilityZone: "ap-northeast-1c",
                 VpcId:{
-                    "Ref": "quickVPC"
+                    Ref: "quickVPC"
                 },
                 CidrBlock: "10.0.3.0/24",
                 Tags: [
@@ -112,10 +115,10 @@ export class Rds{
             Type: "AWS::EC2::VPCGatewayAttachment",
             Properties:{
                 VpcId: {
-                    "Ref": "quickVPC"
+                    Ref: "quickVPC"
                 },
                 InternetGatewayId: {
-                    "Ref": "igw"
+                    Ref: "igw"
                 }
             }
         }
@@ -126,7 +129,7 @@ export class Rds{
             Type: "AWS::EC2::RouteTable",
             Properties: {
                 VpcId: {
-                    "Ref": "quickVPC"
+                    Ref: "quickVPC"
                 },
                 Tags: [
                     {
@@ -144,11 +147,11 @@ export class Rds{
             Type: "AWS::EC2::Route",
             Properties: {
                 RouteTableId: {
-                    "Ref": "Routepublicsubnet"
+                    Ref: "Routepublicsubnet"
                 },
                 DestinationCidrBlock: "0.0.0.0/0",
                 GatewayId: {
-                    "Ref": "igw"
+                    Ref: "igw"
                 }
             }
         }
@@ -159,10 +162,10 @@ export class Rds{
             Type: "AWS::EC2::SubnetRouteTableAssociation",
             Properties: {
                 SubnetId: {
-                    "Ref": "publicSubnet01"
+                    Ref: "publicSubnet01"
                 },
                 RouteTableId: {
-                    "Ref": "Routepublicsubnet"
+                    Ref: "Routepublicsubnet"
                 }
             }
         }
@@ -173,26 +176,61 @@ export class Rds{
             Type: "AWS::EC2::SubnetRouteTableAssociation",
             Properties: {
                 SubnetId: {
-                    "Ref": "publicSubnet02"
+                    Ref: "publicSubnet02"
                 },
                 RouteTableId: {
-                    "Ref": "Routepublicsubnet"
+                    Ref: "Routepublicsubnet"
                 }
             }
         }
 
     }
 
-    static secGroupPublic = {
+    static secEC2GroupPublic = {
         SecGroupPublic: {
             Type: "AWS::EC2::SecurityGroup",
             Properties: {
                 GroupName: "GroupName-SG",
                 GroupDescription: "SecGroupPublic",
                 VpcId: {
-                    "Ref": "quickVPC"
+                    Ref: "quickVPC"
                 },
                 SecurityGroupIngress: [
+                    {
+                        IpProtocol: "tcp",
+                        FromPort: 80,
+                        ToPort: 80,
+                        CidrIp: "0.0.0.0/0"
+                    },
+                    {
+                        IpProtocol: "tcp",
+                        FromPort: 22,
+                        ToPort: 22,
+                        CidrIp: "0.0.0.0/0"
+                    }
+                ]
+            }
+        }
+    }
+
+
+
+    static secDBGroupPublic = {
+        SecGroupPublic: {
+            Type: "AWS::EC2::SecurityGroup",
+            Properties: {
+                GroupName: "GroupName-SG",
+                GroupDescription: "SecGroupPublic",
+                VpcId: {
+                    Ref: "quickVPC"
+                },
+                SecurityGroupIngress: [
+                    {
+                        IpProtocol: "tcp",
+                        FromPort: 3306,
+                        ToPort: 3306,
+                        CidrIp: "0.0.0.0/0"
+                    },
                     {
                         IpProtocol: "tcp",
                         FromPort: 80,
@@ -224,11 +262,11 @@ export class Rds{
                         AssociatePublicIpAddress: "true",
                         DeviceIndex: "0",
                         SubnetId: {
-                            "Ref": "publicSubnet01"
+                            Ref: "publicSubnet01"
                         },
                         GroupSet: [
                             {
-                                "Ref": "SecGroupPublic"
+                                Ref: "SecGroupPublic"
                             }
                         ]
                     }
@@ -244,112 +282,98 @@ export class Rds{
     }
 
 
-
-
-
-
-
-    static rdsYamlFormat = {
-        Resources: {
-            DBInstance: {
-                Type: 'AWS::RDS::DBInstance',
-                DeletionPolicy: 'Snapshot',
-                Properties: {
-                    AllocatedStorage: '5',
-                    DBInstanceClass: 'db.t4g.micro',
-                    DBParameterGroupName: {
-                        Ref: "DBParameterGroup"
-                    },
-                    DBSubnetGroupName: {
-                        Ref: 'DBSubnetGroup'
-                    },
-                    Engine: 'MySQL',
-                    EngineVersion: '5.6.46',
-                    MasterUsername: 'qiuckdeploy',
-                    MasterUserPassword: 'qiuckdeploy',
-                    StorageType: 'gp2'
-                }
-            },
-            DBSubnetGroup: {
-                Type: "AWS::RDS::DBSubnetGroup",
-                Properties: {
-                    DBSubnetGroupDescription: "custom subnet group",
-                    SubnetIds: [
-                        "subnet-aaaaaaaa",
-                        "subnet-bbbbbbbb",
-                        "subnet-cccccccc"
-                    ]
-                }
-            },
-            DBParameterGroup: {
-                Type: "AWS::RDS::DBParameterGroup",
-                Properties: {
-                    Description: "custom paramter group",
-                    Family: "MySQL5.6",
-                    Parameters: {
-                        character_set_database: "utf8mb4",
-                        character_set_client: "utf8mb4",
-                        character_set_connection: "utf8mb4",
-                        character_set_results: "utf8mb4",
-                        character_set_server: "utf8mb4"
+    static dbInstance = {
+        DBInstance: {
+            Type: 'AWS::RDS::DBInstance',
+            DeletionPolicy: 'Snapshot',
+            Properties: {
+                AllocatedStorage: '5',
+                DBInstanceClass: 'db.t2.micro',
+                DBParameterGroupName: {
+                    Ref: "DBParameterGroup"
+                },
+                DBSubnetGroupName: {
+                    Ref: 'DBSubnetGroup'
+                },
+                PubliclyAccessible: true,
+                Engine: 'MySQL',
+                EngineVersion: '5.6.46',
+                MasterUsername: 'qiuckdeploy',
+                MasterUserPassword: 'qiuckdeploy',
+                StorageType: 'gp2',
+                VPCSecurityGroups: [
+                    {
+                        Ref: "SecGroupPublic"
                     }
-                }
-            },
-            VPC1: {
-                Type: "AWS::EC2::VPC",
-                Properties: {
-                    CidrBlock: "192.168.0.0/16"
-                },
-            },
-            Subnet1: {
-                Type: "AWS::EC2::Subnet",
-                Properties: {
-                    VpcId: {
-                        Ref: "VPC1"
-                    },
-                    CidrBlock: "192.168.1.0/24"
-                },
-            },
-            RouteTable1: {
-                Type: "AWS::EC2::RouteTable",
-                Properties: {
-                    VpcId: {
-                        Ref:"VPC1"
-                    }
-                },
-            },
-            RouteTable12Subnet1: {
-                Type: "AWS::EC2::SubnetRouteTableAssociation",
-                Properties: {
-                    RouteTableId: {
-                        Ref: "RouteTable1"
-                    },
-                    SubnetId: {
-                        Ref: "Subnet1"
-                    }
-                },
-            },
-            Route1: {
-                Type: "AWS::EC2::Route",
-                Properties: {
-                    DestinationCidrBlock: "0.0.0.0/0",
-                    GatewayId: {
-                        Ref: "IGW1"
-                    },
-                    RouteTableId: {
-                        "Ref": "RouteTable1"
-                    }
-                },
-            },
+                ],
+            }
         }
     }
 
+
+    static dbSubnetGroup = {
+        DBSubnetGroup: {
+            Type: "AWS::RDS::DBSubnetGroup",
+            Properties: {
+                DBSubnetGroupDescription: "custom subnet group",
+                SubnetIds: [
+                    { Ref: "publicSubnet01" },
+                    { Ref: "publicSubnet02" }
+                ]
+            }
+        }
+    }
+
+    static dbParameterGroup = {
+        DBParameterGroup: {
+            Type: "AWS::RDS::DBParameterGroup",
+            Properties: {
+                Description: "custom paramter group",
+                Family: "MySQL5.6",
+                Parameters: {
+                    character_set_database: "utf8mb4",
+                    character_set_client: "utf8mb4",
+                    character_set_connection: "utf8mb4",
+                    character_set_results: "utf8mb4",
+                    character_set_server: "utf8mb4"
+                }
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+
     static get getRdsYamlFormat(){
-        return this.rdsYamlFormat
+        return {
+            Resources: {
+                ...this.vpc,
+                ...this.publicSubnet01,
+                ...this.publicSubnet02,
+                ...this.internetGateway,
+                ...this.attachGateway,
+                ...this.routepublicsubnet,
+                ...this.routePublic,
+                ...this.routeTableAssocPublic01,
+                ...this.routeTableAssocPublic02,
+                ...this.secDBGroupPublic,
+                ...this.dbSecurityByEC2SecurityGroup,
+                ...this.dbParameterGroup,
+                ...this.dbSubnetGroup,
+                ...this.dbInstance
+
+            }
+        }
     }
 
     static get geTestYamlFormat(){
-        let object = {
+
+        return  {
             Resources: {
                 ...this.vpc,
                 ...this.publicSubnet01,
@@ -362,12 +386,10 @@ export class Rds{
                 ...this.routePublic,
                 ...this.routeTableAssocPublic01,
                 ...this.routeTableAssocPublic02,
-                ...this.secGroupPublic,
+                ...this.secEC2GroupPublic,
                 ...this.publicEC2Instance
             }
         }
-
-        return object
 
     }
 }
