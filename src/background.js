@@ -76,7 +76,7 @@ ipcMain.handle('file-save', async (event, data) => {
 
   // ファイルの内容を返却
   try {
-    fs.writeFileSync('sample.json', data);
+    fs.writeFileSync('./aws/sample.json', data);
 
     return({
       status: true,
