@@ -402,7 +402,11 @@ export class CloudFormation {
     }
 
 
-    static getAmplifyYamlFormat(){
+    static getAmplifyYamlFormat(appName, repository, branchName){
+
+        this.amplifyApp.AmplifyApp.Properties.Name = appName
+        this.amplifyApp.AmplifyApp.Properties.Repository = repository
+        this.amplifyBranch.AmplifyBranch.Properties.BranchName = branchName
 
         return{
             Resources: {
