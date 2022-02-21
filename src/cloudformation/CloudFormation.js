@@ -338,6 +338,54 @@ export class CloudFormation {
         }
     }
 
+    static amplifyApp = {
+        AmplifyApp: {
+            Type: "AWS::Amplify::App",
+            Properties: {
+                Description: "テスト",
+                Name: "My-Trello",
+                Repository: "https://github.com/KazukiKimura-Developer/my-trello",
+                OauthToken: "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",
+                AutoBranchCreationConfig: {
+                    EnableAutoBranchCreation : true,
+                    EnableAutoBuild: true
+                }
+            }
+        }
+    }
+
+    static amplifyBranch = {
+        AmplifyBranch: {
+            Type: "AWS::Amplify::Branch",
+            Properties: {
+                BranchName: "main",
+                AppId: {
+                    "Fn::GetAtt": ["AmplifyApp", "AppId"]
+                },
+                Description: "main branch",
+                EnableAutoBuild: true
+            }
+        },
+    }
+
+    static amplifyDomain = {
+        AmplifyDomain: {
+            Type : "AWS::Amplify::Domain",
+            Properties : {
+                AppId: {
+                    "Fn::GetAtt": ["AmplifyApp", "AppId"]
+                },
+                DomainName: "quickdeploy.com",
+                SubDomainSettings : [ {
+                    Prefix: "main",
+                    BranchName: {
+                        "Fn::GetAtt": ["AmplifyBranch", "BranchName"]
+                    }
+                }]
+            }
+        }
+    }
+
 
 
 

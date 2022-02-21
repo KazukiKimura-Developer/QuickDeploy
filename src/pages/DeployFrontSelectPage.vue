@@ -57,6 +57,9 @@ export default {
     backToMain: function (){
       router.push({name: "DevelopMain"})
     },
+    createFront: function (){
+
+    },
   }
 }
 </script>
