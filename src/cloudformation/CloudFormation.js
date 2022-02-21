@@ -387,6 +387,37 @@ export class CloudFormation {
     }
 
 
+    static outputAmplifyValue = {
+        DefaultDomain:{
+            Value: {
+                "Fn::GetAtt":["AmplifyApp", "DefaultDomain"]
+            }
+        },
+
+        AppId: {
+            Value: {
+                "Fn::GetAtt":["AmplifyApp", "AppId"]
+            }
+        }
+    }
+
+
+    static getAmplifyYamlFormat(){
+
+        return{
+            Resources: {
+                ...this.amplifyApp,
+                ...this.amplifyBranch,
+                ...this.amplifyDomain
+
+            },
+            Outputs: {
+                ...this.outputAmplifyValue
+            }
+        }
+
+    }
+
 
 
 
