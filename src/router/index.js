@@ -3,6 +3,7 @@ import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 import DeployMainPage from "../pages/DeployMainPage.vue";
 import DeployDatabaseSelectPage from "../pages/DeployDatabaseSelectPage";
+import DeployFrontSelectPage from "../pages/DeployFrontSelectPage";
 
 Vue.use(VueRouter)
 
@@ -29,7 +30,13 @@ const routes = [
     path: '/database',
     name: 'Database',
     component: DeployDatabaseSelectPage
+  },{
+    path: '/front',
+    name: 'Front',
+    component: DeployFrontSelectPage
   }
+
+
 ]
 
 const router = new VueRouter({

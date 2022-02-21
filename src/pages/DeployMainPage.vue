@@ -21,7 +21,7 @@
 <script>
 
 import DevelopCardButton from "../components/DevelopCardButton";
-import {CloudFormation} from "../cloudformation/CloudFormation"
+
 import router from "../router";
 
 
@@ -46,7 +46,7 @@ export default {
 
 
 
-      routeToSettingName: ['frontSetting', 'serverSetting', 'Database', 'anythingSetting']
+      routeToSettingName: ['Front', 'serverSetting', 'Database', 'anythingSetting']
     }
   },
   methods:{
@@ -55,9 +55,6 @@ export default {
 
       console.log(key)
       router.push({name: this.routeToSettingName[key]})
-
-
-
     }
 
   }
