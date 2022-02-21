@@ -289,15 +289,12 @@ export class CloudFormation {
             Properties: {
                 AllocatedStorage: '5',
                 DBInstanceClass: 'db.t2.micro',
-                DBParameterGroupName: {
-                    Ref: "DBParameterGroup"
-                },
                 DBSubnetGroupName: {
                     Ref: 'DBSubnetGroup'
                 },
                 PubliclyAccessible: true,
                 Engine: 'MySQL',
-                EngineVersion: '5.6.46',
+                DBName: 'quick',
                 MasterUsername: 'qiuckdeploy',
                 MasterUserPassword: 'qiuckdeploy',
                 StorageType: 'gp2',
@@ -349,7 +346,14 @@ export class CloudFormation {
 
 
 
-    static get getRdsYamlFormat(){
+    static getRdsYamlFormat(engine, dbName,dbUserName, dbUserPassword){
+
+        this.dbInstance.DBInstance.Properties.Engine = engine
+        this.dbInstance.DBInstance.Properties.DBName = dbName
+        this.dbInstance.DBInstance.Properties.MasterUsername = dbUserName
+        this.dbInstance.DBInstance.Properties.MasterUserPassword = dbUserPassword
+
+
         return {
             Resources: {
                 ...this.vpc,
@@ -362,8 +366,6 @@ export class CloudFormation {
                 ...this.routeTableAssocPublic01,
                 ...this.routeTableAssocPublic02,
                 ...this.secDBGroupPublic,
-                ...this.dbSecurityByEC2SecurityGroup,
-                ...this.dbParameterGroup,
                 ...this.dbSubnetGroup,
                 ...this.dbInstance
 

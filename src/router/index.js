@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 import DeployMainPage from "../pages/DeployMainPage.vue";
+import DeployDatabaseSelectPage from "../pages/DeployDatabaseSelectPage";
 
 Vue.use(VueRouter)
 
@@ -23,6 +24,11 @@ const routes = [
     path: '/develop',
     name: 'DevelopMain',
     component: DeployMainPage
+  },
+  {
+    path: '/database',
+    name: 'Database',
+    component: DeployDatabaseSelectPage
   }
 ]
 

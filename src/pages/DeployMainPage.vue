@@ -22,6 +22,7 @@
 
 import DevelopCardButton from "../components/DevelopCardButton";
 import {CloudFormation} from "../cloudformation/CloudFormation"
+import router from "../router";
 
 
 export default {
@@ -44,53 +45,19 @@ export default {
       ],
 
 
-      routeToSettingName: ['frontSetting', 'serverSetting', 'databaseSetting', 'anythingSetting']
+
+      routeToSettingName: ['frontSetting', 'serverSetting', 'Database', 'anythingSetting']
     }
   },
   methods:{
 
-
-
-
-    cardClick: function(key){
+    cardClick: function(key) {
 
       console.log(key)
-      console.log(CloudFormation.getRdsYamlFormat)
-      const {ipcRenderer} = require('electron');
-
-      ipcRenderer.invoke('aws-cli-command', "ls", null, '    ').then((data) => {
-        console.log(data.stdout)
-      });
-
-
-      ipcRenderer.invoke('file-save', JSON.stringify(CloudFormation.getRdsYamlFormat, null, '    '))
-          .then((data) => {
-            // キャンセルで閉じた
-            if( data.status === undefined ){
-              return(false);
-            }
-            // 保存できなかった
-            if( ! data.status ){
-              alert(`ファイルが開けませんでした\n${data.message}`);
-              return(false);
-            }
-
-            // 保存できた
-            this.$message('This is a message.');
-          })
-          .catch((err) => {
-            alert(err);
-          });
+      router.push({name: this.routeToSettingName[key]})
 
 
 
-
-      // fs.writeFile('.sample.yaml', yamlBooks, 'utf8', (err => {
-      //   if (err){
-      //     console.log(err.message)
-      //     process.exit(0)
-      //   }
-      // }))
     }
 
   }
