@@ -345,7 +345,7 @@ export class CloudFormation {
                 Description: "テスト",
                 Name: "My-Trello",
                 Repository: "https://github.com/KazukiKimura-Developer/my-trello",
-                OauthToken: "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",
+                OauthToken: "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",
                 AutoBranchCreationConfig: {
                     EnableAutoBranchCreation : true,
                     EnableAutoBuild: true

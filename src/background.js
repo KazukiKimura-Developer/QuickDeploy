@@ -94,6 +94,31 @@ ipcMain.handle('aws-cli-command', async (event, data) => {
   return await exec(data)
 });
 
+
+ipcMain.handle('aws-cli-webhooks', async (event, appId, branchName) => {
+
+  try {
+    const createWebHooksCommand = "aws amplify create-webhook --app-id " + appId + " --branch-name " + branchName
+    const webhooks = await exec(createWebHooksCommand)
+    const webHook = await JSON.parse(webhooks.stdout).webhook
+    const requestCreateHooksCommand = "curl -X POST -d {} \""+ webHook.webhookUrl + "\" -H \"Content-Type:application/json\""
+    await exec(requestCreateHooksCommand)
+    const deleteWebHooksCommand = "aws amplify delete-webhook --webhook-id " + webHook.webhookId
+    await exec(deleteWebHooksCommand)
+
+    console.log(webHook.webhookUrl)
+    console.log(webHook.webhookId)
+
+    return true
+  }catch (error){
+    console.log(error)
+    return false
+  }
+
+
+
+})
+
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {
   if (process.platform === 'win32') {
