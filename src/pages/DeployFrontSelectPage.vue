@@ -15,8 +15,8 @@
       <span v-else>構築が完了しました。</span>
 
       <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="dialogVisible = false">Confirm</el-button>
+        <el-button @click="deleteStack" v-if="isCreated">中止</el-button>
+        <el-button type="primary" @click="dialogVisible = false" v-else>閉じる</el-button>
       </span>
     </el-dialog>
 
@@ -79,12 +79,22 @@ export default {
       },
       isCreated: true,
       intervalKey: null,
+      stackId: '',
 
     }
   },
   methods: {
     backToMain: function (){
       router.push({name: "DevelopMain"})
+    },
+
+    deleteStack: function (){
+      if(!this.formLabelAlign.stackName){
+        const command = 'aws cloudformation delete-stack ' +
+            '--stack-name ' + this.formLabelAlign.stackName
+        ipcRenderer.invoke('aws-cli-command', command, null, '    ')
+      }
+      this.dialogVisible = false
     },
 
     createFront: function (){
@@ -107,11 +117,9 @@ export default {
                 '--stack-name ' + this.formLabelAlign.stackName +
                 ' --template-body file://aws/sample.json'
 
-            ipcRenderer.invoke('aws-cli-command', command, null, '    ').then(() => {
+            ipcRenderer.invoke('aws-cli-command', command, null, '    ').then((data) => {
               this.intervalKey = setInterval(this.requestStackInformation, 3000)
               this.dialogVisible = true
-
-
 
             });
 
@@ -157,6 +165,10 @@ export default {
 
   .el-icon-success{
     color: #67C23A;
+  }
+
+  icon{
+    font-size: 1.8rem;
   }
 
 </style>
