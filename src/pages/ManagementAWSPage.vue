@@ -1,29 +1,45 @@
 <template>
-  <el-table
-  :data="tableData"
-  height="250"
-  style="width: 100%">
-  <el-table-column
-      prop="date"
-      label="Date"
-      width="180">
-  </el-table-column>
-  <el-table-column
-      prop="name"
-      label="Name"
-      width="180">
-  </el-table-column>
-  <el-table-column
-      prop="address"
-      label="Address">
-  </el-table-column>
-  </el-table>
+
+  <div id="table">
+
+    <div id="content">
+
+      <h4>Management</h4>
+
+      <el-table
+          :data="tableData"
+          height="80vh"
+          style="width: 80vw">
+        <el-table-column
+            prop="date"
+            label="Date"
+            width="180">
+        </el-table-column>
+        <el-table-column
+            prop="name"
+            label="Name"
+            width="180">
+        </el-table-column>
+        <el-table-column
+            prop="address"
+            label="Address">
+        </el-table-column>
+      </el-table>
+
+    </div>
+
+
+  </div>
+
 
 </template>
 
 <script>
 export default {
   name: "ManagementAWSPage",
+  mounted() {
+
+  },
   data() {
     return {
       tableData: [{
@@ -61,5 +77,15 @@ export default {
 </script>
 
 <style scoped>
+
+  #table{
+    width: 100%;
+  }
+
+  #content{
+    width: 80%;
+    height: 80vh;
+    margin: 0 auto;
+  }
 
 </style>
