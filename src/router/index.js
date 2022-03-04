@@ -5,6 +5,7 @@ import DeployMainPage from "../pages/DeployMainPage.vue";
 import DeployDatabaseSelectPage from "../pages/DeployDatabaseSelectPage";
 import DeployFrontSelectPage from "../pages/DeployFrontSelectPage";
 import DeployServerSelectPage from "../pages/DeployServerSelectPage";
+import ManagementAWSPage from "../pages/ManagementAWSPage";
 
 Vue.use(VueRouter)
 
@@ -39,6 +40,10 @@ const routes = [
     path: '/server',
     name: 'Server',
     component: DeployServerSelectPage
+  },{
+    path: '/management',
+    name: 'Management',
+    component: ManagementAWSPage
   }
 
 

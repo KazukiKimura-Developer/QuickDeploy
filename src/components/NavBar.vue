@@ -13,7 +13,7 @@
         <span>デプロイ</span>
 
       </el-menu-item>
-      <el-menu-item @click="transitionDisplay('About')" index="2">
+      <el-menu-item @click="transitionDisplay('Management')" index="2">
         <i class="el-icon-menu"></i>
         <span>管理</span>
       </el-menu-item>
