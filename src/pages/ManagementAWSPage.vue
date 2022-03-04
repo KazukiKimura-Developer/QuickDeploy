@@ -9,20 +9,20 @@
       <el-table
           :data="tableData"
           height="80vh"
-          style="width: 80vw">
+          stripe
+          style="width: 80vw"
+          @row-click="handleClick">
         <el-table-column
-            prop="date"
-            label="Date"
-            width="180">
+            prop="stackName"
+            label="スタック名">
         </el-table-column>
         <el-table-column
-            prop="name"
-            label="Name"
-            width="180">
+            prop="creationTime"
+            label="作成日時">
         </el-table-column>
         <el-table-column
-            prop="address"
-            label="Address">
+            prop="status"
+            label="STATUS">
         </el-table-column>
       </el-table>
 
@@ -35,42 +35,34 @@
 </template>
 
 <script>
+
+const {ipcRenderer} = require('electron');
+
 export default {
   name: "ManagementAWSPage",
   mounted() {
+    const command = 'aws cloudformation list-stacks'
+    ipcRenderer.invoke('aws-cli-command', command, null, '    ').then((data) => {
+      const stacks = JSON.parse(data.stdout).StackSummaries
+      for(const stack of stacks){
 
+        this.tableData.push({
+          stackId: stack.StackId,
+          stackName: stack.StackName,
+          creationTime: new Date(stack.CreationTime).toLocaleString(),
+          status: stack.StackStatus,
+        })
+      }
+    });
   },
   data() {
     return {
-      tableData: [{
-        date: '2016-05-03',
-        name: 'Tom',
-        address: 'No. 189, Grove St, Los Angeles'
-      }, {
-        date: '2016-05-02',
-        name: 'Tom',
-        address: 'No. 189, Grove St, Los Angeles'
-      }, {
-        date: '2016-05-04',
-        name: 'Tom',
-        address: 'No. 189, Grove St, Los Angeles'
-      }, {
-        date: '2016-05-01',
-        name: 'Tom',
-        address: 'No. 189, Grove St, Los Angeles'
-      }, {
-        date: '2016-05-08',
-        name: 'Tom',
-        address: 'No. 189, Grove St, Los Angeles'
-      }, {
-        date: '2016-05-06',
-        name: 'Tom',
-        address: 'No. 189, Grove St, Los Angeles'
-      }, {
-        date: '2016-05-07',
-        name: 'Tom',
-        address: 'No. 189, Grove St, Los Angeles'
-      }],
+      tableData: [],
+    }
+  },
+  methods:{
+    handleClick(val) {
+      console.log(val)
     }
   }
 }
@@ -83,7 +75,7 @@ export default {
   }
 
   #content{
-    width: 80%;
+    width: 90%;
     height: 80vh;
     margin: 0 auto;
   }
