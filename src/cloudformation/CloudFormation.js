@@ -233,6 +233,22 @@ export class CloudFormation {
                     },
                     {
                         IpProtocol: "tcp",
+                        FromPort: 5432,
+                        ToPort: 5432,
+                        CidrIp: "0.0.0.0/0"
+                    },{
+                        IpProtocol: "tcp",
+                        FromPort: 1433,
+                        ToPort: 1433,
+                        CidrIp: "0.0.0.0/0"
+                    },{
+                        IpProtocol: "tcp",
+                        FromPort: 1521,
+                        ToPort: 1521,
+                        CidrIp: "0.0.0.0/0"
+                    },
+                    {
+                        IpProtocol: "tcp",
                         FromPort: 80,
                         ToPort: 80,
                         CidrIp: "0.0.0.0/0"
@@ -252,7 +268,7 @@ export class CloudFormation {
         publicEC2Instance: {
             Type: "AWS::EC2::Instance",
             Properties: {
-                KeyName: "KeyPair-2200212",
+                KeyName: "my-key-pair",
                 DisableApiTermination: false,
                 ImageId: "ami-09ebacdc178ae23b7",
                 InstanceType: "t2.micro",
@@ -293,10 +309,34 @@ export class CloudFormation {
                     Ref: 'DBSubnetGroup'
                 },
                 PubliclyAccessible: true,
-                Engine: 'MySQL',
+                Engine: 'postgres',
                 DBName: 'quick',
                 MasterUsername: 'qiuckdeploy',
                 MasterUserPassword: 'qiuckdeploy',
+                StorageType: 'gp2',
+                VPCSecurityGroups: [
+                    {
+                        Ref: "SecGroupPublic"
+                    }
+                ],
+            }
+        }
+    }
+
+    static dbServerInstance = {
+        DBInstance: {
+            Type: 'AWS::RDS::DBInstance',
+            DeletionPolicy: 'Snapshot',
+            Properties: {
+                AllocatedStorage: '5',
+                DBInstanceClass: 'db.t2.micro',
+                DBSubnetGroupName: {
+                    Ref: 'DBSubnetGroup'
+                },
+                Engine: 'MySQL',
+                DBName: 'quick',
+                MasterUsername: 'quickdeploy',
+                MasterUserPassword: 'quickdeploy',
                 StorageType: 'gp2',
                 VPCSecurityGroups: [
                     {
@@ -472,7 +512,10 @@ export class CloudFormation {
                 ...this.routeTableAssocPublic01,
                 ...this.routeTableAssocPublic02,
                 ...this.secEC2GroupPublic,
-                ...this.publicEC2Instance
+                ...this.publicEC2Instance,
+                ...this.secDBGroupPublic,
+                ...this.dbSubnetGroup,
+                ...this.dbServerInstance
             }
         }
 

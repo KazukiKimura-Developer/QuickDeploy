@@ -46,7 +46,7 @@ export default {
 
 
 
-      routeToSettingName: ['Front', 'serverSetting', 'Database', 'anythingSetting']
+      routeToSettingName: ['Front', 'Server', 'Database', 'anythingSetting']
     }
   },
   methods:{

@@ -2,33 +2,33 @@
 
   <div>
 
-    <el-dialog
-        title="作成中"
-        :visible.sync="dialogVisible"
-        width="30%">
+<!--    <el-dialog-->
+<!--        title="作成中"-->
+<!--        :visible.sync="dialogVisible"-->
+<!--        width="30%">-->
 
-      <i class="el-icon-loading" v-if="isCreated"></i>
-      <i class="el-icon-success" v-else></i>
+<!--      <i class="el-icon-loading" v-if="isCreated"></i>-->
+<!--      <i class="el-icon-success" v-else></i>-->
 
 
-      <span v-if="isCreated">
-        フロントエンド構築中です。しばらくお待ちください。
+<!--      <span v-if="isCreated">-->
+<!--        フロントエンド構築中です。しばらくお待ちください。-->
 
-      </span>
-      <span v-else>
-        構築が完了しました。<br>
-         {{formLabelAlign.branchName}}.{{ deployUrl }}
-      </span>
+<!--      </span>-->
+<!--      <span v-else>-->
+<!--        構築が完了しました。<br>-->
+<!--         {{formLabelAlign.branchName}}.{{ deployUrl }}-->
+<!--      </span>-->
 
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="deleteStack" v-if="isCreated">中止</el-button>
-        <el-button type="primary" @click="dialogVisible = false" v-else>閉じる</el-button>
-      </span>
-    </el-dialog>
+<!--      <span slot="footer" class="dialog-footer">-->
+<!--        <el-button @click="deleteStack" v-if="isCreated">中止</el-button>-->
+<!--        <el-button type="primary" @click="dialogVisible = false" v-else>閉じる</el-button>-->
+<!--      </span>-->
+<!--    </el-dialog>-->
 
     <el-card class="box-card">
       <div slot="header" class="clearfix">
-        <span>Front</span>
+        <span>Server</span>
         <el-button style="float: right; padding: 3px 0" type="text" @click="backToMain">Back</el-button>
       </div>
 
@@ -39,19 +39,36 @@
           <el-input v-model="formLabelAlign.stackName"></el-input>
         </el-form-item>
 
-        <el-form-item label="アプリ名" align="left">
+        <el-form-item label="サーバー名" align="left">
           <el-input v-model="formLabelAlign.appName"></el-input>
         </el-form-item>
 
-        <el-form-item label="githubリポジトリ" align="left">
-          <el-input v-model="formLabelAlign.repository"></el-input>
+        <el-form-item label="フレームワーク" align="left">
+          <el-select v-model="enginevalue" placeholder="Select">
+            <el-option
+                v-for="item in options"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
+            </el-option>
+          </el-select>
         </el-form-item>
 
-        <el-form-item label="ブランチ名" align="left">
+        <el-form-item label="バージョン" align="left">
+          <el-select v-model="version" placeholder="Select">
+            <el-option
+                v-for="item in version_options"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+
+
+        <el-form-item label="hogehoge" align="left">
           <el-input v-model="formLabelAlign.branchName"></el-input>
         </el-form-item>
-
-
 
         <el-button type="primary" @click="createFront">作成</el-button>
 
@@ -67,14 +84,46 @@
 </template>
 
 <script>
-import router from "../router";
 import {CloudFormation} from "../cloudformation/CloudFormation";
+import router from "../router";
+
 const {ipcRenderer} = require('electron');
 
 export default {
-  name: "DeployFrontSelectPage",
+  name: "DeployServerSelectPage",
   data() {
     return{
+      options: [{
+        label: 'Ruby on Rails',
+        value: 'ruby'
+      }, {
+        label: 'Spring Boot',
+        value: 'spring'
+      }, {
+        label: 'Django',
+        value: 'django'
+      }, {
+        label: 'flask',
+        value: 'flask'
+      }, {
+        label: 'Laravel',
+        value: 'laravel'
+      }
+      ],
+      version_options: [{
+        label: '1.8',
+        value: 'java1.8'
+      }, {
+        label: '8',
+        value: 'java8'
+      }, {
+        label: '11',
+        value: 'java11'
+      }, {
+        label: '17',
+        value: 'java17'
+      }
+      ],
       labelPosition: 'top',
       dialogVisible: false,
       formLabelAlign: {
@@ -83,6 +132,8 @@ export default {
         repository: '',
         branchName: ''
       },
+      version: '',
+      enginevalue: '',
       isCreated: true,
       intervalKey: null,
       stackId: '',
@@ -90,7 +141,37 @@ export default {
 
     }
   },
+  mounted() {
+    this.createDatabase()
+  },
   methods: {
+    createDatabase: function (){
+      ipcRenderer.invoke('file-save', JSON.stringify(CloudFormation.geTestYamlFormat, null, '    '))
+          .then((data) => {
+            if( data.status === undefined ){
+              return(false);
+            }
+            // 保存できなかった
+            if( !data.status ){
+              alert(`ファイル保存できません。\n${data.message}`);
+              return(false);
+            }
+
+            // 保存できた
+
+            const command = 'aws cloudformation create-stack ' +
+                '--stack-name stack'+
+                ' --template-body file://aws/sample.json'
+
+            ipcRenderer.invoke('aws-cli-command', command, null, '    ').then(() => {
+
+            });
+
+          })
+          .catch((err) => {
+            alert(err);
+          });
+    },
     backToMain: function (){
       router.push({name: "DevelopMain"})
     },
@@ -160,24 +241,16 @@ export default {
         }
       })
     }
-
   }
 }
 </script>
 
 <style scoped>
+
   .box-card {
     width: 80%;
     margin: 0 auto;
 
-  }
-
-  .el-icon-success{
-    color: #67C23A;
-  }
-
-  i{
-    font-size: 1.8rem;
   }
 
 </style>

@@ -101,13 +101,11 @@ ipcMain.handle('aws-cli-webhooks', async (event, appId, branchName) => {
     const createWebHooksCommand = "aws amplify create-webhook --app-id " + appId + " --branch-name " + branchName
     const webhooks = await exec(createWebHooksCommand)
     const webHook = await JSON.parse(webhooks.stdout).webhook
-    const requestCreateHooksCommand = "curl -X POST -d {} \""+ webHook.webhookUrl + "\" -H \"Content-Type:application/json\""
-    await exec(requestCreateHooksCommand)
-    const deleteWebHooksCommand = "aws amplify delete-webhook --webhook-id " + webHook.webhookId
-    await exec(deleteWebHooksCommand)
+    await requestWebhooks(webHook.webhookUrl)
 
-    console.log(webHook.webhookUrl)
-    console.log(webHook.webhookId)
+    // const deleteWebHooksCommand = "aws amplify delete-webhook --webhook-id " + webHook.webhookId
+    // await exec(deleteWebHooksCommand)
+
 
     return true
   }catch (error){
@@ -118,6 +116,12 @@ ipcMain.handle('aws-cli-webhooks', async (event, appId, branchName) => {
 
 
 })
+
+
+function requestWebhooks(url){
+  const requestCreateHooksCommand = "curl -X POST -d {} \""+ url + "\" -H \"Content-Type:application/json\""
+  exec(requestCreateHooksCommand)
+}
 
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {

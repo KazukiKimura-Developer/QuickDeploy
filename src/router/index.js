@@ -4,6 +4,7 @@ import Home from '../views/Home.vue'
 import DeployMainPage from "../pages/DeployMainPage.vue";
 import DeployDatabaseSelectPage from "../pages/DeployDatabaseSelectPage";
 import DeployFrontSelectPage from "../pages/DeployFrontSelectPage";
+import DeployServerSelectPage from "../pages/DeployServerSelectPage";
 
 Vue.use(VueRouter)
 
@@ -34,6 +35,10 @@ const routes = [
     path: '/front',
     name: 'Front',
     component: DeployFrontSelectPage
+  },{
+    path: '/server',
+    name: 'Server',
+    component: DeployServerSelectPage
   }
 
 
