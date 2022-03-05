@@ -65,7 +65,7 @@ export default {
 
     },
     goBack(){
-      this.$router.go(-2)
+      this.$router.go(-1)
     },
     reload(){
       this.getDescribeEC2Instance()
