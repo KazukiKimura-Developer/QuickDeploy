@@ -21,9 +21,9 @@
             prop="resourceType"
             label="リソースタイプ">
           <template slot-scope="scope">
-            <span v-if="scope.row.resourceType=='AWS::RDS::DBInstance'" ><i class="el-icon-success"></i>{{ scope.row.resourceType }}</span>
-            <span v-else-if="scope.row.resourceType=='AWS::EC2::Instance'" ><i class="el-icon-success"></i>{{ scope.row.resourceType }}</span>
-            <span v-else-if="scope.row.resourceType=='AWS::Amplify::App'" ><i class="el-icon-warning"></i>{{ scope.row.resourceType }}</span>
+            <span v-if="scope.row.resourceType=='AWS::RDS::DBInstance'"><a href="#" @click="transitionPage('DBInstance', scope.row.physicalResourceId)">{{ scope.row.resourceType }}</a></span>
+            <span v-else-if="scope.row.resourceType=='AWS::EC2::Instance'"><a href="#" @click="transitionPage('EC2', scope.row.physicalResourceId)">{{ scope.row.resourceType }}</a></span>
+            <span v-else-if="scope.row.resourceType=='AWS::Amplify::App'"><a href="#" @click="transitionPage('Amplify', scope.row.physicalResourceId)">{{ scope.row.resourceType }}</a></span>
             <span v-else>{{ scope.row.resourceType }}</span>
           </template>
         </el-table-column>
@@ -58,7 +58,7 @@
 
 <script>
 
-// import router from "../router";
+import router from "../router";
 
 const {ipcRenderer} = require('electron');
 
@@ -93,7 +93,9 @@ export default {
           })
         }
       });
-
+    },
+    transitionPage: function (name, id){
+      router.push({name: name, params: { id: id}})
     }
   }
 }

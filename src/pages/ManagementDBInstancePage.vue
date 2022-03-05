@@ -1,5 +1,7 @@
 <template>
-
+  <div>
+    <p>DBInstanceのページだよ</p>
+  </div>
 </template>
 
 <script>

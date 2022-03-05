@@ -1,4 +1,7 @@
 <template>
+  <div>
+    <p>amplifyのページだよ</p>
+  </div>
 
 </template>
 
