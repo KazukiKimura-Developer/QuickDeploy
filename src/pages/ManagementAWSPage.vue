@@ -4,7 +4,12 @@
 
     <div id="content">
 
-      <h4>Management</h4>
+      <div id="title">
+        <h4 id="tabletitle">Stacks</h4>
+
+        <el-button icon="el-icon-refresh" circle size="small" id="reloadbutton" @click="reload"></el-button>
+
+      </div>
 
       <el-table
           :data="tableData"
@@ -57,19 +62,7 @@ const {ipcRenderer} = require('electron');
 export default {
   name: "ManagementAWSPage",
   mounted() {
-    const command = 'aws cloudformation list-stacks'
-    ipcRenderer.invoke('aws-cli-command', command, null, '    ').then((data) => {
-      const stacks = JSON.parse(data.stdout).StackSummaries
-      for(const stack of stacks){
-
-        this.tableData.push({
-          stackId: stack.StackId,
-          stackName: stack.StackName,
-          creationTime: new Date(stack.CreationTime).toLocaleString(),
-          status: stack.StackStatus,
-        })
-      }
-    });
+    this.getStacks()
   },
   data() {
     return {
@@ -80,6 +73,28 @@ export default {
     handleClick(val) {
       console.log(val.stackId)
       router.push({name: 'StackDetail', params: { stackid: val.stackId}})
+    },
+    goBack(){
+      this.$router.back()
+    },
+    getStacks(){
+      const command = 'aws cloudformation list-stacks'
+      ipcRenderer.invoke('aws-cli-command', command, null, '    ').then((data) => {
+        const stacks = JSON.parse(data.stdout).StackSummaries
+        for(const stack of stacks){
+
+          this.tableData.push({
+            stackId: stack.StackId,
+            stackName: stack.StackName,
+            creationTime: new Date(stack.CreationTime).toLocaleString(),
+            status: stack.StackStatus,
+          })
+        }
+      });
+    },
+    reload(){
+      this.tableData.splice(0)
+      this.getStacks()
     }
   }
 }
@@ -95,6 +110,22 @@ export default {
     width: 93%;
     height: 80vh;
     margin: 0 auto;
+  }
+
+  #reloadbutton{
+    margin-right: 30px;
+    margin-left: 50px;
+  }
+
+  #tabletitle{
+    display: inline;
+  }
+
+
+  #title{
+    margin: 20px 0 0 0;
+    text-align: center;
+
   }
 
 </style>

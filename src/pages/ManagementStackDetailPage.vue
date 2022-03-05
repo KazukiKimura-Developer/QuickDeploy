@@ -5,7 +5,15 @@
 
     <div id="content">
 
-      <h4>Management</h4>
+      <div id="title">
+        <h4 id="tabletitle">Management</h4>
+
+
+        <el-button icon="el-icon-refresh" circle size="small" id="reloadbutton" @click="reload"></el-button>
+        <el-link type="primary" @click="goBack">back</el-link>
+
+      </div>
+
 
       <el-table
           :data="tableData"
@@ -13,6 +21,7 @@
           stripe
           style="width: 93vw"
           @row-click="handleClick">
+
         <el-table-column
             prop="logicalResourceId"
             label="リソースID">
@@ -21,9 +30,9 @@
             prop="resourceType"
             label="リソースタイプ">
           <template slot-scope="scope">
-            <span v-if="scope.row.resourceType=='AWS::RDS::DBInstance'"><a href="#" @click="transitionPage('DBInstance', scope.row.physicalResourceId)">{{ scope.row.resourceType }}</a></span>
-            <span v-else-if="scope.row.resourceType=='AWS::EC2::Instance'"><a href="#" @click="transitionPage('EC2', scope.row.physicalResourceId)">{{ scope.row.resourceType }}</a></span>
-            <span v-else-if="scope.row.resourceType=='AWS::Amplify::App'"><a href="#" @click="transitionPage('Amplify', scope.row.physicalResourceId)">{{ scope.row.resourceType }}</a></span>
+            <span v-if="scope.row.resourceType=='AWS::RDS::DBInstance'"><el-link type="primary" @click="transitionPage('DBInstance', scope.row.physicalResourceId)">{{ scope.row.resourceType }}</el-link></span>
+            <span v-else-if="scope.row.resourceType=='AWS::EC2::Instance'"><el-link type="primary" @click="transitionPage('EC2', scope.row.physicalResourceId)">{{ scope.row.resourceType }}</el-link></span>
+            <span v-else-if="scope.row.resourceType=='AWS::Amplify::App'"><el-link type="primary" @click="transitionPage('Amplify', scope.row.physicalResourceId)">{{ scope.row.resourceType }}</el-link></span>
             <span v-else>{{ scope.row.resourceType }}</span>
           </template>
         </el-table-column>
@@ -96,6 +105,13 @@ export default {
     },
     transitionPage: function (name, id){
       router.push({name: name, params: { id: id}})
+    },
+    goBack(){
+      this.$router.go(-1)
+    },
+    reload(){
+      this.tableData.splice(0)
+      this.getStackDetail()
     }
   }
 }
@@ -111,6 +127,22 @@ export default {
     width: 93%;
     height: 80vh;
     margin: 0 auto;
+  }
+
+  #reloadbutton{
+    margin-right: 30px;
+    margin-left: 50px;
+  }
+
+  #tabletitle{
+    display: inline;
+  }
+
+
+  #title{
+    margin: 20px 0 0 0;
+    text-align: center;
+
   }
 
 </style>
