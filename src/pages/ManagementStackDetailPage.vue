@@ -20,6 +20,12 @@
         <el-table-column
             prop="resourceType"
             label="リソースタイプ">
+          <template slot-scope="scope">
+            <span v-if="scope.row.resourceType=='AWS::RDS::DBInstance'" ><i class="el-icon-success"></i>{{ scope.row.resourceType }}</span>
+            <span v-else-if="scope.row.resourceType=='AWS::EC2::Instance'" ><i class="el-icon-success"></i>{{ scope.row.resourceType }}</span>
+            <span v-else-if="scope.row.resourceType=='AWS::Amplify::App'" ><i class="el-icon-warning"></i>{{ scope.row.resourceType }}</span>
+            <span v-else>{{ scope.row.resourceType }}</span>
+          </template>
         </el-table-column>
         <el-table-column
             prop="lastUpdatedTimestamp"
@@ -60,23 +66,7 @@ export default {
   name: "ManagementStackDetailPage",
   created() {
     this.stackId = this.$route.params.stackid.toString();
-
-    const command = 'aws cloudformation list-stack-resources --stack-name ' + this.stackId
-
-    ipcRenderer.invoke('aws-cli-command', command, null, '    ').then((data) => {
-      const awsResources = JSON.parse(data.stdout).StackResourceSummaries
-      for(const awsResource of awsResources){
-        this.tableData.push({
-          logicalResourceId: awsResource.LogicalResourceId,
-          physicalResourceId: awsResource.PhysicalResourceId,
-          resourceType: awsResource.ResourceType,
-          lastUpdatedTimestamp: new Date(awsResource.LastUpdatedTimestamp).toLocaleString(),
-          resourceStatus: awsResource.ResourceStatus
-        })
-      }
-
-
-    });
+    this.getStackDetail()
 
   },
   data(){
@@ -86,8 +76,24 @@ export default {
     }
   },
   methods:{
-    handleClick(val) {
+    handleClick: function(val) {
       console.log(val)
+    },
+    getStackDetail: function (){
+      const command = 'aws cloudformation list-stack-resources --stack-name ' + this.stackId
+      ipcRenderer.invoke('aws-cli-command', command, null, '    ').then((data) => {
+        const awsResources = JSON.parse(data.stdout).StackResourceSummaries
+        for(const awsResource of awsResources){
+          this.tableData.push({
+            logicalResourceId: awsResource.LogicalResourceId,
+            physicalResourceId: awsResource.PhysicalResourceId,
+            resourceType: awsResource.ResourceType,
+            lastUpdatedTimestamp: new Date(awsResource.LastUpdatedTimestamp).toLocaleString(),
+            resourceStatus: awsResource.ResourceStatus
+          })
+        }
+      });
+
     }
   }
 }
