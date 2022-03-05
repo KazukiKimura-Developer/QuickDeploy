@@ -10,7 +10,7 @@
           :data="tableData"
           height="80vh"
           stripe
-          style="width: 80vw"
+          style="width: 93vw"
           @row-click="handleClick">
         <el-table-column
             prop="stackName"
@@ -23,6 +23,20 @@
         <el-table-column
             prop="status"
             label="STATUS">
+
+          <template slot-scope="scope">
+            <span v-if="scope.row.status=='CREATE_COMPLETE'" style="color:#67C23A"><i class="el-icon-success"></i>{{ scope.row.status }}</span>
+            <span v-else-if="scope.row.status=='CREATE_IN_PROGRESS'" style="color:#464ff3"><i class="el-icon-success"></i>{{ scope.row.status }}</span>
+            <span v-else-if="scope.row.status=='CREATE_FAILED'" style="color:#F56C6C"><i class="el-icon-warning"></i>{{ scope.row.status }}</span>
+            <span v-else-if="scope.row.status=='ROLLBACK_IN_PROGRESS'" style="color:#F56C6C"><i class="el-icon-warning"></i>{{ scope.row.status }}</span>
+            <span v-else-if="scope.row.status=='ROLLBACK_FAILED'" style="color:#F56C6C"><i class="el-icon-warning"></i>{{ scope.row.status }}</span>
+            <span v-else-if="scope.row.status=='ROLLBACK_COMPLETE'" style="color:#F56C6C"><i class="el-icon-warning"></i>{{ scope.row.status }}</span>
+            <span v-else-if="scope.row.status=='DELETE_IN_PROGRESS'" style="color:#409EFF"><i class="el-icon-error"></i>{{ scope.row.status }}</span>
+            <span v-else-if="scope.row.status=='DELETE_FAILED'" style="color:#F56C6C"><i class="el-icon-warning"></i>{{ scope.row.status }}</span>
+            <span v-else-if="scope.row.status=='DELETE_COMPLETE'" style="color:#409EFF"><i class="el-icon-error"></i>{{ scope.row.status }}</span>
+            <span v-else>{{ scope.row.status }}</span>
+          </template>
+
         </el-table-column>
       </el-table>
 
@@ -35,6 +49,8 @@
 </template>
 
 <script>
+
+import router from "../router";
 
 const {ipcRenderer} = require('electron');
 
@@ -62,7 +78,8 @@ export default {
   },
   methods:{
     handleClick(val) {
-      console.log(val)
+      console.log(val.stackId)
+      router.push({name: 'StackDetail', params: { stackid: val.stackId}})
     }
   }
 }
@@ -75,7 +92,7 @@ export default {
   }
 
   #content{
-    width: 90%;
+    width: 93%;
     height: 80vh;
     margin: 0 auto;
   }
