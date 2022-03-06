@@ -92,6 +92,7 @@ export default {
       const command = 'aws cloudformation list-stack-resources --stack-name ' + this.stackId
       ipcRenderer.invoke('aws-cli-command', command, null, '    ').then((data) => {
         const awsResources = JSON.parse(data.stdout).StackResourceSummaries
+        console.log(awsResources)
         for(const awsResource of awsResources){
           this.tableData.push({
             logicalResourceId: awsResource.LogicalResourceId,

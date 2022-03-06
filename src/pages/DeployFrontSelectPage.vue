@@ -151,11 +151,14 @@ export default {
           ipcRenderer.invoke('aws-cli-webhooks', appId, this.formLabelAlign.branchName, null, '    ').then((flag) => {
             if(flag){
               console.log(flag)
+              clearInterval(this.intervalKey)
             }
           })
 
 
-          clearInterval(this.intervalKey)
+
+
+
 
         }
       })

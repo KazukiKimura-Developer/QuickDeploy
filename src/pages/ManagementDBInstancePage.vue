@@ -59,7 +59,6 @@ export default {
       this.$router.go(-1)
     },
     reload(){
-      this.tableData.splice(0)
       this.getStackDetail()
     }
   }

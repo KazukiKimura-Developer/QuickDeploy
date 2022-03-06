@@ -389,7 +389,14 @@ export class CloudFormation {
                 AutoBranchCreationConfig: {
                     EnableAutoBranchCreation : true,
                     EnableAutoBuild: true
-                }
+                },
+                Tags: [
+
+                    {
+                        Key: "branch",
+                        Value: "main"
+                    }
+                ]
             }
         }
     }
@@ -446,14 +453,14 @@ export class CloudFormation {
 
         this.amplifyApp.AmplifyApp.Properties.Name = appName
         this.amplifyApp.AmplifyApp.Properties.Repository = repository
+        this.amplifyApp.AmplifyApp.Properties.Tags[0].Value = branchName
         this.amplifyBranch.AmplifyBranch.Properties.BranchName = branchName
+
 
         return{
             Resources: {
                 ...this.amplifyApp,
-                ...this.amplifyBranch,
-                ...this.amplifyDomain
-
+                ...this.amplifyBranch
             },
             Outputs: {
                 ...this.outputAmplifyValue

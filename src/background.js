@@ -94,6 +94,10 @@ ipcMain.handle('aws-cli-command', async (event, data) => {
   return await exec(data)
 });
 
+ipcMain.handle('open-browser', async (event, data) => {
+  return await exec(data)
+});
+
 
 ipcMain.handle('aws-cli-webhooks', async (event, appId, branchName) => {
 

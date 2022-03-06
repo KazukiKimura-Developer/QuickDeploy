@@ -32,6 +32,7 @@
 <script>
 const {ipcRenderer} = require('electron');
 
+
 export default {
   name: "ManagementEC2Page",
   created() {
