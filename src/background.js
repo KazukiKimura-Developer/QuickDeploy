@@ -1,9 +1,13 @@
 'use strict'
 
-import { app, protocol, BrowserWindow } from 'electron'
+import { app, protocol, BrowserWindow, ipcMain } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
+const fs = require('fs')
+const util = require('util');
+const childProcess = require('child_process');
+const exec = util.promisify(childProcess.exec);
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
@@ -14,7 +18,7 @@ async function createWindow() {
   // Create the browser window.
   const win = new BrowserWindow({
     width: 1000,
-    height: 700,
+    height: 770,
     useContentSize: true,
     webPreferences: {
       
@@ -65,6 +69,63 @@ app.on('ready', async () => {
   }
   createWindow()
 })
+
+
+ipcMain.handle('file-save', async (event, data) => {
+
+
+  // ファイルの内容を返却
+  try {
+    fs.writeFileSync('./aws/sample.json', data);
+
+    return({
+      status: true,
+      path: 'sample.yaml'
+    });
+  }
+  catch(error) {
+    return({status:false, message:error.message});
+  }
+});
+
+
+
+ipcMain.handle('aws-cli-command', async (event, data) => {
+  return await exec(data)
+});
+
+ipcMain.handle('open-browser', async (event, data) => {
+  return await exec(data)
+});
+
+
+ipcMain.handle('aws-cli-webhooks', async (event, appId, branchName) => {
+
+  try {
+    const createWebHooksCommand = "aws amplify create-webhook --app-id " + appId + " --branch-name " + branchName
+    const webhooks = await exec(createWebHooksCommand)
+    const webHook = await JSON.parse(webhooks.stdout).webhook
+    await requestWebhooks(webHook.webhookUrl)
+
+    // const deleteWebHooksCommand = "aws amplify delete-webhook --webhook-id " + webHook.webhookId
+    // await exec(deleteWebHooksCommand)
+
+
+    return true
+  }catch (error){
+    console.log(error)
+    return false
+  }
+
+
+
+})
+
+
+function requestWebhooks(url){
+  const requestCreateHooksCommand = "curl -X POST -d {} \""+ url + "\" -H \"Content-Type:application/json\""
+  exec(requestCreateHooksCommand)
+}
 
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {

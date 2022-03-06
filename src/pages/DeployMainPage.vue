@@ -22,9 +22,15 @@
 
 import DevelopCardButton from "../components/DevelopCardButton";
 
+import router from "../router";
+
+
 export default {
   name: "DeployMainPage",
   components: {DevelopCardButton},
+  mounted() {
+
+  },
   data(){
     return{
 
@@ -38,13 +44,17 @@ export default {
             {name: 'Anything', icon: 'devicon-amazonwebservices-original'},
       ],
 
-      routeToSettingName: ['frontSetting', 'serverSetting', 'databaseSetting', 'anythingSetting']
+
+
+      routeToSettingName: ['Front', 'Server', 'Database', 'anythingSetting']
     }
   },
   methods:{
-    cardClick: function(key){
+
+    cardClick: function(key) {
 
       console.log(key)
+      router.push({name: this.routeToSettingName[key]})
     }
 
   }
