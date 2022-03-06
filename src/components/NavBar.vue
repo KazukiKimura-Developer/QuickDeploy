@@ -8,10 +8,8 @@
         @open="handleOpen"
         @close="handleClose">
       <el-menu-item index="1" @click="transitionDisplay('DevelopMain')">
-
         <i class="el-icon-coin"></i>
         <span>デプロイ</span>
-
       </el-menu-item>
       <el-menu-item @click="transitionDisplay('Management')" index="2">
         <i class="el-icon-menu"></i>

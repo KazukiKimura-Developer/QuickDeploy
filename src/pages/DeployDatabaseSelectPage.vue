@@ -1,49 +1,75 @@
 <template>
 
+  <div>
+
+    <el-dialog
+        title="作成中"
+        :visible.sync="dialogVisible"
+        width="30%">
+
+      <i class="el-icon-success"></i>
+
+      <span>
+      インスタンス準備中
+    </span>
 
 
-  <el-card class="box-card">
-    <div slot="header" class="clearfix">
-      <span> Database</span>
-      <el-button style="float: right; padding: 3px 0" type="text" @click="backToMain">Back</el-button>
-    </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="transitionManagement">管理画面を見る</el-button>
+        <el-button  @click="dialogVisible = false">閉じる</el-button>
+    </span>
 
-    <el-form :label-position="labelPosition"  :model="formLabelAlign">
-      <el-form-item label="スタック名" align="left">
-        <el-input v-model="formLabelAlign.stackName"></el-input>
-      </el-form-item>
-
-      <el-form-item label="DBエンジン" align="left">
-        <el-select v-model="enginevalue" placeholder="Select">
-          <el-option
-              v-for="item in options"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value">
-          </el-option>
-        </el-select>
-      </el-form-item>
-
-      <el-form-item label="データベース名" align="left">
-        <el-input v-model="formLabelAlign.dbName"></el-input>
-      </el-form-item>
-
-      <el-form-item label="マスターユーザー名" align="left">
-        <el-input v-model="formLabelAlign.masterUserName"></el-input>
-      </el-form-item>
-
-      <el-form-item label="マスターユーザーパスワード" align="left">
-        <el-input v-model="formLabelAlign.masterUserPassword"></el-input>
-      </el-form-item>
-
-      <el-button type="primary" @click="createDatabase">作成</el-button>
-
-
-    </el-form>
+    </el-dialog>
 
 
 
-  </el-card>
+    <el-card class="box-card">
+      <div slot="header" class="clearfix">
+        <span> Database</span>
+        <el-button style="float: right; padding: 3px 0" type="text" @click="backToMain">Back</el-button>
+      </div>
+
+      <el-form :label-position="labelPosition"  :model="formLabelAlign">
+        <el-form-item label="スタック名" align="left">
+          <el-input v-model="formLabelAlign.stackName"></el-input>
+        </el-form-item>
+
+        <el-form-item label="DBエンジン" align="left">
+          <el-select v-model="enginevalue" placeholder="Select">
+            <el-option
+                v-for="item in options"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="データベース名" align="left">
+          <el-input v-model="formLabelAlign.dbName"></el-input>
+        </el-form-item>
+
+        <el-form-item label="マスターユーザー名" align="left">
+          <el-input v-model="formLabelAlign.masterUserName"></el-input>
+        </el-form-item>
+
+        <el-form-item label="マスターユーザーパスワード" align="left">
+          <el-input v-model="formLabelAlign.masterUserPassword"></el-input>
+        </el-form-item>
+
+        <el-button type="primary" @click="createDatabase">作成</el-button>
+
+
+      </el-form>
+
+
+
+    </el-card>
+
+
+  </div>
+
+
 
 
 
@@ -90,7 +116,8 @@ export default {
         dbName: '',
         masterUserName: '',
         masterUserPassword: ''
-      }
+      },
+      dialogVisible: false
     }
   },
   methods: {
@@ -125,14 +152,18 @@ export default {
 
             ipcRenderer.invoke('aws-cli-command', command, null, '    ').then((data) => {
               console.log(data)
-              this.$message('作成に入ります');
+              this.dialogVisible = true
             });
 
           })
           .catch((err) => {
             alert(err);
           });
-    }
+    },
+    transitionManagement: function (){
+      this.dialogVisible = false
+      router.push({name: "Management"})
+    },
   }
 }
 </script>
@@ -160,6 +191,10 @@ export default {
     width: 80%;
     margin: 0 auto;
 
+  }
+
+  .el-icon-success{
+    color: #67C23A;
   }
 
 </style>

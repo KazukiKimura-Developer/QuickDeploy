@@ -12,17 +12,20 @@
 
 
       <span v-if="isCreated">
-        フロントエンド構築中です。しばらくお待ちください。
+        アプリを構築中
 
       </span>
       <span v-else>
-        構築が完了しました。<br>
-         {{formLabelAlign.branchName}}.{{ deployUrl }}
+        構築が完了しました。デプロイの準備中。
       </span>
 
       <span slot="footer" class="dialog-footer">
-        <el-button @click="deleteStack" v-if="isCreated">中止</el-button>
-        <el-button type="primary" @click="dialogVisible = false" v-else>閉じる</el-button>
+        <el-button @click="deleteStack" v-if="isCreated" type="danger">中止</el-button>
+        <div v-else>
+          <el-button type="primary" @click="transitionManagement">管理画面を見る</el-button>
+          <el-button  @click="dialogVisible = false">閉じる</el-button>
+        </div>
+
       </span>
     </el-dialog>
 
@@ -105,6 +108,10 @@ export default {
 
       this.dialogVisible = false
     },
+    transitionManagement: function (){
+      this.dialogVisible = false
+      router.push({name: "Management"})
+    },
 
     createFront: function (){
 
@@ -155,6 +162,8 @@ export default {
             }
           })
 
+
+          clearInterval(this.intervalKey)
 
 
 

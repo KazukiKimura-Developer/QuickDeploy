@@ -26,6 +26,25 @@
 <!--      </span>-->
 <!--    </el-dialog>-->
 
+
+    <el-dialog
+        title="作成中"
+        :visible.sync="dialogVisible"
+        width="30%">
+
+      <i class="el-icon-success"></i>
+
+      <span>
+        インスタンス準備中
+      </span>
+
+
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="transitionManagement">管理画面を見る</el-button>
+        <el-button  @click="dialogVisible = false">閉じる</el-button>
+      </span>
+    </el-dialog>
+
     <el-card class="box-card">
       <div slot="header" class="clearfix">
         <span>Server</span>
@@ -164,6 +183,7 @@ export default {
                 ' --template-body file://aws/sample.json'
 
             ipcRenderer.invoke('aws-cli-command', command, null, '    ').then(() => {
+              this.dialogVisible = true
 
             });
 
@@ -174,6 +194,11 @@ export default {
     },
     backToMain: function (){
       router.push({name: "DevelopMain"})
+    },
+
+    transitionManagement: function (){
+      this.dialogVisible = false
+      router.push({name: "Management"})
     },
 
     deleteStack: function (){
@@ -251,6 +276,9 @@ export default {
     width: 80%;
     margin: 0 auto;
 
+  }
+  .el-icon-success{
+    color: #67C23A;
   }
 
 </style>

@@ -2,7 +2,7 @@
   <div id="content">
 
 
-    <el-descriptions title="RDS" direction="vertical" :column="3" border id="rdsinfo">
+    <el-descriptions title="Amplify" direction="vertical" :column="3" border id="rdsinfo">
 
       <template #extra>
         <el-button icon="el-icon-refresh" circle size="small" id="reloadbutton" @click="reload"></el-button>
