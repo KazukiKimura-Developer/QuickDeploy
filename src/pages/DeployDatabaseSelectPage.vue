@@ -117,7 +117,7 @@ export default {
         masterUserName: '',
         masterUserPassword: ''
       },
-      dialogVisible: false
+      dialogVisible: false,
     }
   },
   methods: {

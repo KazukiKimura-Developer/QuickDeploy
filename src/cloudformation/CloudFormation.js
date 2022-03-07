@@ -187,19 +187,19 @@ export class CloudFormation {
     }
 
     static secEC2GroupPublic = {
-        SecGroupPublic: {
+        SecEC2GroupPublic: {
             Type: "AWS::EC2::SecurityGroup",
             Properties: {
-                GroupName: "GroupName-SG",
-                GroupDescription: "SecGroupPublic",
+                GroupName: "GroupEC2Name-SG",
+                GroupDescription: "SecEC2GroupPublic",
                 VpcId: {
                     Ref: "quickVPC"
                 },
                 SecurityGroupIngress: [
                     {
                         IpProtocol: "tcp",
-                        FromPort: 80,
-                        ToPort: 80,
+                        FromPort: 0,
+                        ToPort: 65535,
                         CidrIp: "0.0.0.0/0"
                     },
                     {
@@ -273,6 +273,17 @@ export class CloudFormation {
                 ImageId: "ami-09ebacdc178ae23b7",
                 InstanceType: "t2.micro",
                 Monitoring: false,
+                UserData:{
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+
+                        ]
+
+
+                    }
+
+                },
                 NetworkInterfaces: [
                     {
                         AssociatePublicIpAddress: "true",
@@ -282,7 +293,7 @@ export class CloudFormation {
                         },
                         GroupSet: [
                             {
-                                Ref: "SecGroupPublic"
+                                Ref: "SecEC2GroupPublic"
                             }
                         ]
                     }
@@ -415,24 +426,6 @@ export class CloudFormation {
         },
     }
 
-    static amplifyDomain = {
-        AmplifyDomain: {
-            Type : "AWS::Amplify::Domain",
-            Properties : {
-                AppId: {
-                    "Fn::GetAtt": ["AmplifyApp", "AppId"]
-                },
-                DomainName: "quickdeploy.com",
-                SubDomainSettings : [ {
-                    Prefix: "main",
-                    BranchName: {
-                        "Fn::GetAtt": ["AmplifyBranch", "BranchName"]
-                    }
-                }]
-            }
-        }
-    }
-
 
     static outputAmplifyValue = {
         DefaultDomain:{
@@ -503,7 +496,14 @@ export class CloudFormation {
         }
     }
 
-    static get geTestYamlFormat(){
+    static geEC2YamlFormat(formAlign, springCommand){
+
+        this.dbServerInstance.DBInstance.Properties.DBName = formAlign.dbName
+        this.dbServerInstance.DBInstance.Properties.Engine = formAlign.engineValue
+        this.dbServerInstance.DBInstance.Properties.MasterUsername = formAlign.masterUserName
+        this.dbServerInstance.DBInstance.Properties.MasterUserPassword = formAlign.masterUserPassword
+
+        this.publicEC2Instance.publicEC2Instance.Properties.UserData["Fn::Base64"]["Fn::Join"].push(springCommand)
 
         return  {
             Resources: {

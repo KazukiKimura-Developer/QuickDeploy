@@ -4,8 +4,7 @@
 
     <el-dialog
         title="作成中"
-        :visible.sync="dialogVisible"
-        width="30%">
+        :visible.sync="dialogVisible">
 
       <i class="el-icon-loading" v-if="isCreated"></i>
       <i class="el-icon-success" v-else></i>
@@ -82,8 +81,9 @@ export default {
       dialogVisible: false,
       formLabelAlign: {
         stackName: '',
-        appName: '',
-        repository: '',
+        dbName: '',
+        dbMasterUserName: '',
+        dbMasterUserPassword: '',
         branchName: ''
       },
       isCreated: true,
