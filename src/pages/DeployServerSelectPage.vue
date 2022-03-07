@@ -26,6 +26,24 @@
 <!--      </span>-->
 <!--    </el-dialog>-->
 
+
+    <el-dialog
+        title="作成中"
+        :visible.sync="dialogVisible">
+
+      <i class="el-icon-success"></i>
+
+      <span>
+        インスタンス準備中
+      </span>
+
+
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="transitionManagement">管理画面を見る</el-button>
+        <el-button  @click="dialogVisible = false">閉じる</el-button>
+      </span>
+    </el-dialog>
+
     <el-card class="box-card">
       <div slot="header" class="clearfix">
         <span>Server</span>
@@ -39,12 +57,8 @@
           <el-input v-model="formLabelAlign.stackName"></el-input>
         </el-form-item>
 
-        <el-form-item label="サーバー名" align="left">
-          <el-input v-model="formLabelAlign.appName"></el-input>
-        </el-form-item>
-
         <el-form-item label="フレームワーク" align="left">
-          <el-select v-model="enginevalue" placeholder="Select">
+          <el-select v-model="formLabelAlign.framework" placeholder="Select">
             <el-option
                 v-for="item in options"
                 :key="item.value"
@@ -54,10 +68,10 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="バージョン" align="left">
-          <el-select v-model="version" placeholder="Select">
+        <el-form-item label="DBエンジン" align="left">
+          <el-select v-model="formLabelAlign.engineValue" placeholder="Select">
             <el-option
-                v-for="item in version_options"
+                v-for="item in dbEngin"
                 :key="item.value"
                 :label="item.label"
                 :value="item.value">
@@ -65,12 +79,33 @@
           </el-select>
         </el-form-item>
 
-
-        <el-form-item label="hogehoge" align="left">
-          <el-input v-model="formLabelAlign.branchName"></el-input>
+        <el-form-item label="データベース名" align="left">
+          <el-input v-model="formLabelAlign.dbName"></el-input>
         </el-form-item>
 
-        <el-button type="primary" @click="createFront">作成</el-button>
+        <el-form-item label="マスターユーザー名" align="left">
+          <el-input v-model="formLabelAlign.masterUserName"></el-input>
+        </el-form-item>
+
+        <el-form-item label="マスターユーザーパスワード" align="left">
+          <el-input v-model="formLabelAlign.masterUserPassword"></el-input>
+        </el-form-item>
+
+
+
+<!--        <el-form-item label="バージョン" align="left">-->
+<!--          <el-select v-model="version" placeholder="Select">-->
+<!--            <el-option-->
+<!--                v-for="item in version_options"-->
+<!--                :key="item.value"-->
+<!--                :label="item.label"-->
+<!--                :value="item.value">-->
+<!--            </el-option>-->
+<!--          </el-select>-->
+<!--        </el-form-item>-->
+
+
+        <el-button type="primary" @click="createDatabase">作成</el-button>
 
 
       </el-form>
@@ -124,73 +159,55 @@ export default {
         value: 'java17'
       }
       ],
+      dbEngin: [{
+        label: 'Amazon Aurora',
+        value: 'aurora'
+      }, {
+        label: 'MariaDB',
+        value: 'mariadb'
+      }, {
+        label: 'MySQL',
+        value: 'mysql'
+      }, {
+        label: 'Oracle',
+        value: 'oracle-ee'
+      }, {
+        label: 'PostgreSQL',
+        value: 'postgres'
+      }, {
+        label: 'SQL Server',
+        value: 'sqlserver-ee'
+      }],
       labelPosition: 'top',
       dialogVisible: false,
       formLabelAlign: {
         stackName: '',
-        appName: '',
-        repository: '',
-        branchName: ''
+        dbName: '',
+        masterUserName: '',
+        masterUserPassword: '',
+        engineValue: '',
+        framework: '',
       },
       version: '',
-      enginevalue: '',
       isCreated: true,
       intervalKey: null,
       stackId: '',
-      deployUrl: ''
+      deployUrl: '',
+
+      springBootCommand: [
+        "#!/bin/bash\n",
+        "sudo yum update -y\n",
+        "sudo yum install -y java-1.8.0-openjdk-devel.x86_64\n",
+        "sudo wget http://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo -O /etc/yum.repos.d/epel-apache-maven.repo\n",
+        "sudo sed -i s/\\$releasever/6/g /etc/yum.repos.d/epel-apache-maven.repo\n",
+        "sudo yum install -y apache-maven\n",
+      ]
 
     }
   },
-  mounted() {
-    this.createDatabase()
-  },
   methods: {
     createDatabase: function (){
-      ipcRenderer.invoke('file-save', JSON.stringify(CloudFormation.geTestYamlFormat, null, '    '))
-          .then((data) => {
-            if( data.status === undefined ){
-              return(false);
-            }
-            // 保存できなかった
-            if( !data.status ){
-              alert(`ファイル保存できません。\n${data.message}`);
-              return(false);
-            }
-
-            // 保存できた
-
-            const command = 'aws cloudformation create-stack ' +
-                '--stack-name stack'+
-                ' --template-body file://aws/sample.json'
-
-            ipcRenderer.invoke('aws-cli-command', command, null, '    ').then(() => {
-
-            });
-
-          })
-          .catch((err) => {
-            alert(err);
-          });
-    },
-    backToMain: function (){
-      router.push({name: "DevelopMain"})
-    },
-
-    deleteStack: function (){
-      if(!this.formLabelAlign.stackName){
-        const command = 'aws cloudformation delete-stack ' +
-            '--stack-name ' + this.formLabelAlign.stackName
-        ipcRenderer.invoke('aws-cli-command', command, null, '    ')
-      }
-
-
-      this.dialogVisible = false
-    },
-
-    createFront: function (){
-
-
-      ipcRenderer.invoke('file-save', JSON.stringify(CloudFormation.getAmplifyYamlFormat(this.formLabelAlign.appName, this.formLabelAlign.repository,this.formLabelAlign.branchName), null, '    '))
+      ipcRenderer.invoke('file-save', JSON.stringify(CloudFormation.geEC2YamlFormat(this.formLabelAlign, this.springBootCommand), null, '    '))
           .then((data) => {
             if( data.status === undefined ){
               return(false);
@@ -208,8 +225,8 @@ export default {
                 ' --template-body file://aws/sample.json'
 
             ipcRenderer.invoke('aws-cli-command', command, null, '    ').then(() => {
-              this.intervalKey = setInterval(this.requestStackInformation, 3000)
               this.dialogVisible = true
+
             });
 
           })
@@ -217,30 +234,26 @@ export default {
             alert(err);
           });
     },
+    backToMain: function (){
+      router.push({name: "DevelopMain"})
+    },
 
-    requestStackInformation: function (){
-      const command = 'aws cloudformation describe-stacks ' +
-          '--stack-name ' + this.formLabelAlign.stackName
-      ipcRenderer.invoke('aws-cli-command', command, null, '    ').then((data) => {
-        const outputResult = JSON.parse(data.stdout).Stacks[0].Outputs
-        console.log(outputResult)
-        if(typeof outputResult !== "undefined"){
-          this.isCreated = false
-          const appId = outputResult[0].OutputValue
-          this.deployUrl = outputResult[1].OutputValue
+    transitionManagement: function (){
+      this.dialogVisible = false
+      router.push({name: "Management"})
+    },
 
-          ipcRenderer.invoke('aws-cli-webhooks', appId, this.formLabelAlign.branchName, null, '    ').then((flag) => {
-            if(flag){
-              console.log(flag)
-            }
-          })
+    deleteStack: function (){
+      if(!this.formLabelAlign.stackName){
+        const command = 'aws cloudformation delete-stack ' +
+            '--stack-name ' + this.formLabelAlign.stackName
+        ipcRenderer.invoke('aws-cli-command', command, null, '    ')
+      }
 
 
-          clearInterval(this.intervalKey)
+      this.dialogVisible = false
+    },
 
-        }
-      })
-    }
   }
 }
 </script>
@@ -251,6 +264,9 @@ export default {
     width: 80%;
     margin: 0 auto;
 
+  }
+  .el-icon-success{
+    color: #67C23A;
   }
 
 </style>

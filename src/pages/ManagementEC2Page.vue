@@ -3,6 +3,34 @@
 
 <!--    <a @click="$router.back()">back</a>-->
 
+    <el-dialog
+        title="デプロイディレクトのアップロード"
+        :visible.sync="dialogVisible">
+
+      <el-upload
+          class="upload-demo"
+          drag
+          action=""
+          :auto-upload="false"
+          :on-preview="handlePreview"
+          :on-remove="handleRemove"
+          :on-change="handleAdd"
+          :file-list="fileList"
+          multiple
+          webkitdirectory>
+        <i class="el-icon-upload"></i>
+        <div class="el-upload__text">Drop Deploy Folder here or <em>click to upload</em></div>
+      </el-upload>
+
+
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" :disabled="uploadButton" @click="deployServerFile">ファイルアップロード</el-button>
+        <el-button  @click="closeModal">閉じる</el-button>
+      </span>
+
+
+    </el-dialog>
+
     <el-descriptions title="EC2" direction="vertical" :column="3" border id="ec2info">
 
       <template #extra>
@@ -25,6 +53,8 @@
 
     </el-descriptions>
 
+    <el-button type="primary" @click="openModal">デプロイファイルアップロード</el-button>
+
   </div>
 
 </template>
@@ -43,7 +73,10 @@ export default {
   data(){
     return{
       ec2Id: '',
-      instanceInfo: {}
+      instanceInfo: {},
+      dialogVisible: false,
+      uploadButton: true,
+      fileList: []
     }
   },
   methods:{
@@ -70,6 +103,33 @@ export default {
     },
     reload(){
       this.getDescribeEC2Instance()
+    },
+    handleRemove(file, fileList) {
+      console.log(file, fileList);
+    },
+    handlePreview(file) {
+      console.log(file);
+    },
+    handleAdd: function (file, fileList) {
+      this.fileList.splice(0)
+      this.fileList = fileList
+      this.uploadButton = false
+    },
+    openModal(){
+
+      this.dialogVisible = true
+    },
+    closeModal(){
+      this.dialogVisible = false
+      console.log(this.fileList[0])
+    },
+    deployServerFile(){
+      const commnad = "'cd " + this.fileList[0].raw.name + ";mvn spring-boot:run'"
+      ipcRenderer.invoke('server-deploy', this.fileList[0].raw.path, this.instanceInfo.PublicDnsName, commnad,  null, '    ').then((data) => {
+        console.log(data.stdout)
+      });
+
+      this.dialogVisible = false
     }
   }
 

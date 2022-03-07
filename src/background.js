@@ -94,8 +94,28 @@ ipcMain.handle('aws-cli-command', async (event, data) => {
   return await exec(data)
 });
 
-ipcMain.handle('open-browser', async (event, data) => {
-  return await exec(data)
+
+ipcMain.handle('server-deploy', async (event, path, ip ,command) => {
+  try {
+    const scpCommnad = "scp -r -o StrictHostKeyChecking=no  -i aws/my-key-pair.pem " + path + " ec2-user@" + ip +  ":~"
+    const sshCommnad = "ssh -i aws/my-key-pair.pem ec2-user@" + ip + " " + command
+
+    console.log("scp command: " + scpCommnad)
+    console.log("scp command: " + sshCommnad)
+
+
+
+    const hoge = await exec(scpCommnad)
+
+
+    console.log("scp command結果:" + hoge.stdout)
+    return await exec(sshCommnad)
+  }catch (e) {
+
+    console.error(e)
+
+  }
+
 });
 
 
