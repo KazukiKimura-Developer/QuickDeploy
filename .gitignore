@@ -8,6 +8,7 @@ my-key-pair.pem
 
 # local env files
 .env.local
+.env
 .env.*.local
 
 # Log files
